@@ -3,9 +3,9 @@
 namespace BuildingBlocks.Security;
 public class Security
 {
-    public static string GetConnectionString(string connectionName)
+    public static string GetConnectionString(string ConnectionString)
     {
-        var ConnectionString = "Server=localhost;Port=5432;Database=CatalogDb;User Id=postgres;Password=postgres;Include Error Detail=true";// ConfigurationManager.ConnectionStrings[connectionName].ConnectionString;
+      //  var ConnectionString = "Server=localhost;Port=5432;Database=CatalogDb;User Id=postgres;Password=postgres;Include Error Detail=true";// ConfigurationManager.ConnectionStrings[connectionName].ConnectionString;
 
         // Expressão regular para capturar a senha após PASSWORD= até o ponto e vírgula
         var regex = new Regex(@"PASSWORD\s*=\s*(?<senha>[^;]+);", RegexOptions.IgnoreCase);

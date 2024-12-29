@@ -4,20 +4,19 @@ using Mapster;
 
 namespace Catalog.API.Security;
 
-
 public record SecurityCipherRequest(string Pass);
- 
 
-public class SecurityEndpoint : ICarterModule
+
+public class SecurityCipherEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPost("/security/cipher", 
+        app.MapPost("/security/cipher",
             async (SecurityCipherRequest request, ISender sender) =>
         {
             var command = request.Adapt<SecurityCipherCommand>();
 
-            var result = await sender.Send(command);      
+            var result = await sender.Send(command);
 
             return Results.Ok(result.PassCipher);
 

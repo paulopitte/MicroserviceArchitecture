@@ -4,8 +4,9 @@ using System.Text;
 namespace BuildingBlocks.Security;
 public class AESCipher
 {
-    private static readonly string Key = "your-32-char-secret-key1234567890"; // 32 caracteres (256 bits)
-    private static readonly string IV = "your-16-char-iv123";                 // 16 caracteres (128 bits)
+    private static readonly string Key = "12345678901234567890123456789012"; // 32 caracteres (256 bits)
+    private static readonly string IV = "1234567890123456";                 // 16 caracteres (128 bits)
+
 
 
     public static string Cipher(string plainText)

@@ -42,24 +42,22 @@ public class AESCipher
         if (string.IsNullOrEmpty(cipherText))
             throw new ArgumentNullException(nameof(cipherText));
 
-        using (var aes = Aes.Create())
+        try
         {
+            using var aes = Aes.Create();
             aes.Key = Encoding.UTF8.GetBytes(Key);
             aes.IV = Encoding.UTF8.GetBytes(IV);
 
-            using (var decryptor = aes.CreateDecryptor(aes.Key, aes.IV))
-            {
-                using (var ms = new MemoryStream(Convert.FromBase64String(cipherText)))
-                {
-                    using (var cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read))
-                    {
-                        using (var reader = new StreamReader(cs))
-                        {
-                            return reader.ReadToEnd();
-                        }
-                    }
-                }
-            }
+            using var decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+            using var ms = new MemoryStream(Convert.FromBase64String(cipherText));
+            using var cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read);
+            using var reader = new StreamReader(cs);
+            return reader.ReadToEnd();
+        }
+        catch (Exception)
+        {
+
+            return cipherText;
         }
     }
 

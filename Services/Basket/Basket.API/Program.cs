@@ -1,5 +1,6 @@
 using BuildingBlocks.Exceptions.Handler;
 using BuildingBlocks.Security;
+using HealthChecks.UI.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionName = Security.GetConnectionString(builder.Configuration.GetConnectionString("Database")!);
@@ -32,10 +33,18 @@ builder.Services.AddStackExchangeRedisCache(options =>
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
+builder.Services.AddHealthChecks()
+    .AddNpgSql(connectionName)
+    .AddRedis(builder.Configuration.GetConnectionString("Redis")!);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.MapCarter();
 app.UseExceptionHandler(options => { });
-
+app.UseHealthChecks("/health",
+    new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+    {
+        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+    });
 app.Run();

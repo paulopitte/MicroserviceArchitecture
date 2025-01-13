@@ -1,7 +1,10 @@
+using BuildingBlocks.Security;
 using HealthChecks.UI.Client;
+using MediatR;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionName = Security.GetConnectionString(builder.Configuration.GetConnectionString("Database")!);
 
 // Add services to the container.
 var assembly = typeof(Program).Assembly;
@@ -17,7 +20,7 @@ builder.Services.AddCarter();
 
 builder.Services.AddMarten(opts =>
 {
-    opts.Connection(builder.Configuration.GetConnectionString("Database")!);    
+    opts.Connection(connectionName);
 }).UseLightweightSessions();
 
 if (builder.Environment.IsDevelopment())
@@ -26,7 +29,7 @@ if (builder.Environment.IsDevelopment())
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
 builder.Services.AddHealthChecks()
-    .AddNpgSql(builder.Configuration.GetConnectionString("Database")!);
+    .AddNpgSql(connectionName);
 
 var app = builder.Build();
 

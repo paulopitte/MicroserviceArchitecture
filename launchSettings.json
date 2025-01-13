@@ -5,7 +5,9 @@
       "commandVersion": "1.0",
       "serviceActions": {
         "catalog.api": "StartDebugging",
-        "basket.api": "StartDebugging"
+        "basket.api": "StartDebugging",
+        "discountgrpc": "StartDebugging",
+        "discount.grpc": "StartDebugging"
       }
     }
   }

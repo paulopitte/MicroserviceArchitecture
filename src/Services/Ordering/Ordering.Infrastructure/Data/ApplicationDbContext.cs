@@ -35,85 +35,86 @@ public class ApplicationDbContext : DbContext
 
 
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
-    {
-        try
-        {
-            foreach (var entity in ChangeTracker.Entries<IEntity>())
-            {
-                switch (entity.State)
-                {
-                    case EntityState.Added:
-                         entity.Entity.CreatedAt = DateTime.UtcNow.AddHours(UTC);
-                        break;
-                    case EntityState.Modified:
-                         entity.Entity.LastModified = DateTime.UtcNow.AddHours(UTC);
-                        break;
-                    case EntityState.Deleted:
-                       //  entity.Entity.DeleteAt = DateTime.UtcNow.AddHours(UTC);
-                        break;
-                    case EntityState.Detached:
-                        break;
-                    case EntityState.Unchanged:
-                        break;
-                    default:
-                        break;
-                }
-            }
-            return await base.SaveChangesAsync(cancellationToken);
-        }
-        catch (DbUpdateConcurrencyException exception)
-        {
-            if (this is DbContext dbContext)
-            {
-                var entries = dbContext.ChangeTracker.Entries()
-                    .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified ||
-                                e.State == EntityState.Deleted).ToList();
+    //public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+    //{
+    //    try
+    //    {
+    //        //ALTERADO PARA NOVA FEATURE DO DOTNET 8 COM USO DO SaveChangesInterceptor
+    //        //foreach (var entity in ChangeTracker.Entries<IEntity>())
+    //        //{
+    //        //    switch (entity.State)
+    //        //    {
+    //        //        case EntityState.Added:
+    //        //             entity.Entity.CreatedAt = DateTime.UtcNow.AddHours(UTC);
+    //        //            break;
+    //        //        case EntityState.Modified:
+    //        //             entity.Entity.LastModified = DateTime.UtcNow.AddHours(UTC);
+    //        //            break;
+    //        //        case EntityState.Deleted:
+    //        //           //  entity.Entity.DeleteAt = DateTime.UtcNow.AddHours(UTC);
+    //        //            break;
+    //        //        case EntityState.Detached:
+    //        //            break;
+    //        //        case EntityState.Unchanged:
+    //        //            break;
+    //        //        default:
+    //        //            break;
+    //        //    }
+    //        //}
+    //        return await base.SaveChangesAsync(cancellationToken);
+    //    }
+    //    catch (DbUpdateConcurrencyException exception)
+    //    {
+    //        if (this is DbContext dbContext)
+    //        {
+    //            var entries = dbContext.ChangeTracker.Entries()
+    //                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified ||
+    //                            e.State == EntityState.Deleted).ToList();
 
-                var sb = new StringBuilder();
-                entries.ForEach(entry =>
-                {
-                    sb.AppendLine($"EntityType: {entry.Metadata.Name} / State: {entry.State} /=/ ");
-                });
+    //            var sb = new StringBuilder();
+    //            entries.ForEach(entry =>
+    //            {
+    //                sb.AppendLine($"EntityType: {entry.Metadata.Name} / State: {entry.State} /=/ ");
+    //            });
 
-                _logger.LogCritical(exception,
-                    $"{nameof(SaveChanges)} CONCURRENCY DB INSERT/UPDATE/DELETE WARNING: {exception?.Message} / {sb}",
-                    exception);
+    //            _logger.LogCritical(exception,
+    //                $"{nameof(SaveChanges)} CONCURRENCY DB INSERT/UPDATE/DELETE WARNING: {exception?.Message} / {sb}",
+    //                exception);
 
-                throw new DbUpdateConcurrencyException(sb.ToString());
-            }
+    //            throw new DbUpdateConcurrencyException(sb.ToString());
+    //        }
 
-            if (_saveChangesRetryCount < 3)
-            {
-                _saveChangesRetryCount += 1;
-                _logger.LogCritical($"SAVECHANGES-RETRY.......: {_saveChangesRetryCount}");
-                return await SaveChangesAsync(cancellationToken);
-            }
+    //        if (_saveChangesRetryCount < 3)
+    //        {
+    //            _saveChangesRetryCount += 1;
+    //            _logger.LogCritical($"SAVECHANGES-RETRY.......: {_saveChangesRetryCount}");
+    //            return await SaveChangesAsync(cancellationToken);
+    //        }
 
-            LogReceivedMessage(LogLevel.Warning, _saveChangesRetryCount, $"SAVECHANGES-RETRY......: {_saveChangesRetryCount} FINAL");
-            return 0;
-        }
-        catch (DbUpdateException exception)
-        {
-            LogReceivedMessage(LogLevel.Error, _saveChangesRetryCount, $"{nameof(SaveChanges)} DB INSERT/UPDATE/DELETE ERROR: {exception?.Message}");
+    //        LogReceivedMessage(LogLevel.Warning, _saveChangesRetryCount, $"SAVECHANGES-RETRY......: {_saveChangesRetryCount} FINAL");
+    //        return 0;
+    //    }
+    //    catch (DbUpdateException exception)
+    //    {
+    //        LogReceivedMessage(LogLevel.Error, _saveChangesRetryCount, $"{nameof(SaveChanges)} DB INSERT/UPDATE/DELETE ERROR: {exception?.Message}");
 
-            throw new DbUpdateException(
-                $"{nameof(SaveChanges)} DB INSERT/UPDATE/DELETE ERROR: {exception?.Message}",
-                exception);
-        }
-        catch (RetryLimitExceededException exception)
-        {
-            throw new RetryLimitExceededException(
-                $"{nameof(SaveChanges)} DB INSERT/UPDATE/DELETE ERROR: {exception?.Message}",
-                exception);
-        }
-        catch (Exception exception)
-        {
-            throw new Exception(
-                $"{nameof(SaveChanges)} DB INSERT/UPDATE/DELETE ERROR: {exception?.Message}",
-                exception);
-        }
-    }
+    //        throw new DbUpdateException(
+    //            $"{nameof(SaveChanges)} DB INSERT/UPDATE/DELETE ERROR: {exception?.Message}",
+    //            exception);
+    //    }
+    //    catch (RetryLimitExceededException exception)
+    //    {
+    //        throw new RetryLimitExceededException(
+    //            $"{nameof(SaveChanges)} DB INSERT/UPDATE/DELETE ERROR: {exception?.Message}",
+    //            exception);
+    //    }
+    //    catch (Exception exception)
+    //    {
+    //        throw new Exception(
+    //            $"{nameof(SaveChanges)} DB INSERT/UPDATE/DELETE ERROR: {exception?.Message}",
+    //            exception);
+    //    }
+    //}
 
     private void LogReceivedMessage<T>(LogLevel logLevel, T exceptionOcurrence, string logMessage, params object[] args)
     {

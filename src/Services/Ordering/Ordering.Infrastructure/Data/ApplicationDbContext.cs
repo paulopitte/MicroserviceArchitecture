@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
+using Ordering.Application.Data;
 using Serilog.Context;
 using System.Reflection;
 using System.Text;
 
 namespace Ordering.Infrastructure.Data;
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : DbContext, IApplicationDbContext
 {
     private readonly ILogger<ApplicationDbContext> _logger;
 

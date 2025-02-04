@@ -11,8 +11,7 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructureServices
         (this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = Security.GetConnectionString(
-    configuration.GetConnectionString("Database")!);
+        var connectionString = Security.GetConnectionString(configuration.GetConnectionString("Database")!);
 
 
         // Add services to the container.

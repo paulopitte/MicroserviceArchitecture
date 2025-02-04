@@ -14,10 +14,9 @@ public class DeleteOrderHandler(IApplicationDbContext dbContext)
         var order = await dbContext.Orders
             .FindAsync([orderId], cancellationToken: cancellationToken);
 
-        if (order is null)
-        {
+        if (order is null)        
             throw new OrderNotFoundException(command.OrderId);
-        }
+        
 
         dbContext.Orders.Remove(order);
         await dbContext.SaveChangesAsync(cancellationToken);
